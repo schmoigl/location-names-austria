@@ -1,0 +1,84 @@
+---
+title: "Location Names in Austria"
+author: "Lukas Schmoigl"
+execute: 
+  echo: false
+format: 
+  html: 
+    code-fold: true
+    embed-resources: true
+---
+
+{{< include src/config.qmd >}}
+
+Note the Mapshaper command:
+
+-drop fields=OBJECTID,BEARBDAT,ERSTELLDAT,ERFASS_ART,NAME_UNG,NAME_SLOW,NAME_KROAT,GLOBALID,HOEHE_MEER,EINW_KLASS,F_NAME,VAR_NAME
+
+```{r}
+library(tidyverse)
+library(geojsonio)
+data <- topojson_read("data/ortsnamen_small.json")
+```
+
+What are the most common endings?
+
+```{r}
+common_suffix <- data |>
+  mutate(suffix = substr(NAME, nchar(NAME)-1, nchar(NAME))) |>
+  group_by(suffix) |>
+  count() |>
+  filter(n > 500) |>
+  arrange(desc(n))
+```
+
+```{r}
+suffix_list <- data.frame(suffix = c(
+  # "graben",
+  "mühle",
+  "bauer",
+  "hütte",
+  "stein",
+  "berg",
+  "dorf",
+  "bach",
+  "ing",
+  "alpe",
+  "hof",
+  "alm",
+  "egg",
+  # "er",
+  # "en",
+  "au"
+))
+```
+
+```{r}
+partial_join <- function(x, y, by_x, pattern_y) {
+ idx_x <- sapply(y[[pattern_y]], grep, x[[by_x]])
+ idx_y <- sapply(seq_along(idx_x), function(i) rep(i, length(idx_x[[i]])))
+
+ df <- dplyr::bind_cols(
+  x[unlist(idx_x), , drop = F],
+  y[unlist(idx_y), , drop = F]
+  )
+  
+ return(df)
+}
+
+exp <- data |>
+  partial_join(y = suffix_list, by_x = "NAME", pattern_y = "suffix")
+```
+
+```{r}
+topojson_write(exp, file = "data/data.json")
+```
+
+
+```{r}
+suffix_regex <- paste0("(", paste(suffix_list, collapse = "|"), ")$")
+```
+
+```{ojs}
+colors
+```

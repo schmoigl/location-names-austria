@@ -1,0 +1,96 @@
+
+```{ojs}
+import {vl} from "@vega/vega-lite-api-v5"
+import {aq, op} from '@uwdata/arquero'
+colors = [
+  "#72bb6f", // 
+  "#559bd5", // 
+  "#f3d039", // 
+  "#c3423f", 
+  "#12a7e7",
+  "#96b428",
+  "#559e8f",
+  "#f3d039",
+  "#559e8f",
+  "#2d5b5e"
+]
+config = ({
+  view: { stroke: "transparent" },
+  facet: { 
+    spacing: 5, 
+    fontSize: 0
+  },
+  concat: { spacing: 15 },
+  font: "Rubik",
+  title: {
+    fontSize: 14, 
+    subtitleFontSize: 13,
+  },
+  axis: {
+    labelFontSize: 12, 
+    titleFontSize: 12,
+    titleFontWeight: "normal",
+  },
+  legend: {
+    labelFontSize: 12, 
+    titleFontSize: 12,
+    titleFontWeight: "normal",
+  },
+  mark: {
+    fontSize: 12
+  },
+  locale: {
+    number: {
+      decimal: ',', 
+      thousands: '.', 
+      grouping: [3],
+      currency: ["", "\u00a0Mrd.€"],
+    },
+  time: {
+      "dateTime": "%A %e %B %Y, %X",
+      "date": "%d/%m/%Y",
+      "time": "%H:%M:%S",
+      "periods": ["AM", "PM"],
+      "days": [
+        "Domenica",
+        "Lunedì",
+        "Martedì",
+        "Mercoledì",
+        "Giovedì",
+        "Venerdì",
+        "Sabato"
+      ],
+      "shortDays": ["Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"],
+      "months": [
+        "Gennaio",
+        "Febbraio",
+        "Marzo",
+        "Aprile",
+        "Maggio",
+        "Giugno",
+        "Luglio",
+        "Agosto",
+        "Settembre",
+        "Ottobre",
+        "Novembre",
+        "Dicembre"
+      ],
+      "shortMonths": [
+        "Jan",
+        "Feb",
+        "Mrz",
+        "Apr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Okt",
+        "Nov",
+        "Dez"
+      ]
+    }
+  },
+  background: "transparent" // #f2f2f2
+  })
+```
