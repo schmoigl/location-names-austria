@@ -15,70 +15,79 @@ colors = [
   "#2d5b5e"
 ]
 config = ({
-  view: { stroke: "transparent" },
-  facet: { 
-    spacing: 5, 
-    fontSize: 0
-  },
-  concat: { spacing: 15 },
-  font: "Rubik",
+  view: {stroke: null}, 
+  fontSize: 14, 
   title: {
-    fontSize: 14, 
-    subtitleFontSize: 13,
+    offset: 0, 
+    fontSize: 16, 
+    subtitleFontSize: 14,
+  },
+  facet: {
+    fontSize: 14,
+    labelFontSize: 14, 
+    titleFontSize: 14,
+    titleFontWeight: "normal",
   },
   axis: {
-    labelFontSize: 12, 
-    titleFontSize: 12,
+    labelFontSize: 14, 
+    titleFontSize: 14,
     titleFontWeight: "normal",
   },
   legend: {
-    labelFontSize: 12, 
-    titleFontSize: 12,
+    labelFontSize: 14, 
+    titleFontSize: 14,
     titleFontWeight: "normal",
   },
   mark: {
-    fontSize: 12
+    fontSize: 14
   },
   locale: {
     number: {
-      decimal: ',', 
-      thousands: '.', 
-      grouping: [3],
-      currency: ["", "\u00a0Mrd.€"],
+      decimal: ",", 
+      thousands: ".", 
+      grouping: [3]
     },
-  time: {
-      "dateTime": "%A %e %B %Y, %X",
-      "date": "%d/%m/%Y",
-      "time": "%H:%M:%S",
-      "periods": ["AM", "PM"],
-      "days": [
-        "Domenica",
-        "Lunedì",
-        "Martedì",
-        "Mercoledì",
-        "Giovedì",
-        "Venerdì",
-        "Sabato"
+    time: {
+      dateTime: "%A %e %B %Y, %X",
+      date: "%d/%m/%Y",
+      time: "%H:%M:%S",
+      periods: ["AM", "PM"],
+      days: [
+        "Montag",
+        "Dienstag",
+        "Mittwoch",
+        "Donnerstag",
+        "Freitag",
+        "Samstag",
+        "Sonntag"
       ],
-      "shortDays": ["Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"],
-      "months": [
-        "Gennaio",
-        "Febbraio",
-        "Marzo",
-        "Aprile",
-        "Maggio",
-        "Giugno",
-        "Luglio",
-        "Agosto",
-        "Settembre",
-        "Ottobre",
-        "Novembre",
-        "Dicembre"
+      shortDays: [
+        "Mo", 
+        "Di", 
+        "Mi", 
+        "Do", 
+        "Fr", 
+        "Sa", 
+        "So"
       ],
-      "shortMonths": [
+      months: [
+        "Jänner",
+        "Februar",
+        "März",
+        "April",
+        "Mai",
+        "Juni",
+        "Juli",
+        "August",
+        "September",
+        "Oktober",
+        "November",
+        "Dezember"
+      ],
+      shortMonths: [
         "Jan",
         "Feb",
-        "Mrz",
+        "Mar",
         "Apr",
         "Mai",
         "Jun",
@@ -91,6 +100,5 @@ config = ({
       ]
     }
   },
-  background: "transparent" // #f2f2f2
-  })
+})
 ```

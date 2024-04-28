@@ -11,19 +11,19 @@ format:
 
 {{< include src/config.qmd >}}
 
-Note the Mapshaper command:
-
--drop fields=OBJECTID,BEARBDAT,ERSTELLDAT,ERFASS_ART,NAME_UNG,NAME_SLOW,NAME_KROAT,GLOBALID,HOEHE_MEER,EINW_KLASS,F_NAME,VAR_NAME
-
 ```{r}
+#| echo: false
+#| warning: false
 library(tidyverse)
 library(geojsonio)
+library(eurostat)
+library(sf)
 data <- topojson_read("data/ortsnamen_small.json")
 ```
 
-What are the most common endings?
-
 ```{r}
+#| echo: false
+#| warning: false
 common_suffix <- data |>
   mutate(suffix = substr(NAME, nchar(NAME)-1, nchar(NAME))) |>
   group_by(suffix) |>
@@ -33,20 +33,39 @@ common_suffix <- data |>
 ```
 
 ```{r}
+#| echo: false
+#| warning: false
 suffix_list <- data.frame(suffix = c(
-  # "graben",
+  "Sankt",
+  "schwend",
+  "graben",
+  "schlag",
   "mühle",
   "bauer",
   "hütte",
   "stein",
+  "kirch",
+  "stadt",
+  "wang",
   "berg",
   "dorf",
   "bach",
-  "ing",
   "alpe",
+  "burg",
+  "feld",
+  "zell",
+  "hart",
+  "bald",
+  "weis",
+  "heim",
+  "ing",
   "hof",
   "alm",
   "egg",
+  "ham",
+  "see",
+  "ödt",
+  "amt",
   # "er",
   # "en",
   "au"
@@ -54,6 +73,8 @@ suffix_list <- data.frame(suffix = c(
 ```
 
 ```{r}
+#| echo: false
+#| warning: false
 partial_join <- function(x, y, by_x, pattern_y) {
  idx_x <- sapply(y[[pattern_y]], grep, x[[by_x]])
  idx_y <- sapply(seq_along(idx_x), function(i) rep(i, length(idx_x[[i]])))
@@ -65,20 +86,170 @@ partial_join <- function(x, y, by_x, pattern_y) {
   
  return(df)
 }
-
-exp <- data |>
-  partial_join(y = suffix_list, by_x = "NAME", pattern_y = "suffix")
 ```
 
 ```{r}
-topojson_write(exp, file = "data/data.json")
+#| echo: false
+#| warning: false
+data <- data |>
+  partial_join(y = suffix_list, by_x = "NAME", pattern_y = "suffix") 
+
+latLon <- do.call(rbind, st_geometry(data$geometry)) |>
+  as_tibble() |>
+  setNames(c("lon","lat"))
+
+data$geometry <- NULL
+
+data <- cbind(data |> select(NAME, suffix), latLon)
 ```
 
+```{r}
+#| echo: false
+#| warning: false
+suffix_list_clean <- data |>
+  group_by(suffix) |>
+  count() |>
+  arrange(desc(n)) |> 
+  filter(n>20) |>
+  select(suffix) |>
+  pull()
+```
 
 ```{r}
-suffix_regex <- paste0("(", paste(suffix_list, collapse = "|"), ")$")
+#| echo: false
+#| warning: false
+write_csv(
+  data |> 
+    filter(suffix %in% suffix_list_clean) |>
+    mutate(suffix = ifelse(str_detect(substr(suffix, 1, 1), "^[:upper:]+$"), paste0(suffix, "-"), paste0("-", suffix))), 
+  file = "data/data.csv")
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| output: false
+get_eurostat_geospatial(
+  resolution = "03", 
+  nuts_level = "2", 
+  year = "2021",
+  crs = "3035"
+  ) |>
+  st_transform(crs = 31255) |>
+  filter(CNTR_CODE == "AT") -> nuts_3
+
+topojson_write(nuts_3, file = "data/nuts3.json")
 ```
 
 ```{ojs}
-colors
+// echo: false
+// warning: false
+austria = FileAttachment("data/nuts3.json").json()
+data = FileAttachment("data/data.csv").csv({ typed: true })
+```
+
+```{ojs}
+chart = {
+
+  const border = vl
+    .markGeoshape({ fill: "#E5E5E5", stroke: "white", sttrokeWidth: 3 })
+    .data(vl.topojson(austria).feature("foo"));
+
+  const select = vl
+    .selectPoint('select')
+    .fields('suffix')
+    .toggle('event')
+    .on('click')
+    .bind('legend')
+    .init(["-alm", "-bach", "-alpe"])
+    .clear('none')
+    .nearest(false);
+
+  const points = vl
+    .markPoint({
+      stroke: "black",
+      fillOpacity: 0.8, 
+      fillOpacity: 1,
+      strokeWidth: 0.4
+    })
+    .encode(
+      vl.latitude().fieldQ("lat").title("Lat"),
+      vl.longitude().fieldQ("lon").title("Long"),
+      vl.fill().fieldN("suffix").legend({ orient: "top-left", direction: "horizontal", columns: 4, title: "Prefix - suffix — click to select", titleLimit: 20000 }),
+      // vl.tooltip("NAME"),
+      vl.opacity()
+        .if(select, vl.value(1))
+        .value(0),
+    )
+    .data(data)
+    .params(select);
+
+  const points_tt = vl
+    .markPoint({
+      stroke: "black",
+      fillOpacity: 0.8, 
+      fillOpacity: 1,
+      strokeWidth: 0.4
+    })
+    .transform(
+      vl.filter(select)
+    )
+    .encode(
+      vl.latitude().fieldQ("lat").title("Lat"),
+      vl.longitude().fieldQ("lon").title("Long"),
+      vl.fill().fieldN("suffix"),
+      vl.tooltip("NAME"),
+    )
+    .data(data);
+
+
+  return vl
+    .layer(border, points, points_tt)
+    .project(
+      vl.projection("identity")
+        .reflectY(true)
+        .center([48, 16])
+    )
+    .width(width * .95)
+    .height(600)
+    .config(config)
+    .render({ renderer: "canvas" });
+}
+```
+
+```{ojs}
+facets = {
+
+  const border = vl
+    .markGeoshape({ fill: "#E5E5E5", stroke: "white", sttrokeWidth: 3 })
+    .data(vl.topojson(austria).feature("foo"));
+
+  const points = vl
+    .markPoint({
+      stroke: "black",
+      fillOpacity: 0.8, 
+      fillOpacity: 1,
+      strokeWidth: 0.4,
+      size: 10
+    })
+    .encode(
+      vl.latitude().fieldQ("lat").title("Lat"),
+      vl.longitude().fieldQ("lon").title("Long"),
+      vl.facet({ columns: 4 }).fieldN("suffix"),
+      vl.fill().fieldN("suffix").legend(null),
+      vl.tooltip("NAME"),
+    );
+
+  return points
+    .project(
+      vl.projection("identity")
+        .reflectY(true) // Colombia's Lat/Long
+    )
+    // .facet({ columns: 4, field: "suffix"})
+    .data(data)
+    .width(width * .2)
+    .height(200)
+    .config(config)
+    .render({ renderer: "canvas" });
+}
 ```
