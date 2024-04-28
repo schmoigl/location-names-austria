@@ -136,15 +136,15 @@ get_eurostat_geospatial(
   crs = "3035"
   ) |>
   st_transform(crs = 31255) |>
-  filter(CNTR_CODE == "AT") -> nuts_3
+  filter(CNTR_CODE == "AT") -> nuts
 
-topojson_write(nuts_3, file = "data/nuts3.json")
+topojson_write(nuts, file = "data/nuts.json")
 ```
 
 ```{ojs}
 // echo: false
 // warning: false
-austria = FileAttachment("data/nuts3.json").json()
+austria = FileAttachment("data/nuts.json").json()
 data = FileAttachment("data/data.csv").csv({ typed: true })
 ```
 
