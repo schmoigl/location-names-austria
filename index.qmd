@@ -36,8 +36,21 @@ common_suffix <- data |>
 #| echo: false
 #| warning: false
 suffix_list <- data.frame(suffix = c(
+  "Ober",
+  "Unter",
   "Sankt",
+  "tal",
+  "wald",
+  "bühl",
   "schwend",
+  "bruck",
+  # "ach",
+  "brunn",
+  "bruck",
+  "reuth",
+  "markt",
+  "itz",
+  "leiten",
   "graben",
   "schlag",
   "mühle",
@@ -173,9 +186,21 @@ chart = {
       strokeWidth: 0.4
     })
     .encode(
-      vl.latitude().fieldQ("lat").title("Lat"),
-      vl.longitude().fieldQ("lon").title("Long"),
-      vl.fill().fieldN("suffix").legend({ orient: "top-left", direction: "horizontal", columns: 4, title: "Prefix - suffix — click to select", titleLimit: 20000 }),
+      vl.latitude()
+        .fieldQ("lat")
+        .title("Lat"),
+      vl.longitude()
+        .fieldQ("lon")
+        .title("Long"),
+      vl.fill()
+        .fieldN("suffix")
+        .legend({ 
+          orient: "top-left", 
+          direction: "horizontal", 
+          columns: 4, 
+          title: "Pre- and -suffix | click to select", titleLimit: 20000,
+          symbolLimit: 200,
+          }),
       // vl.tooltip("NAME"),
       vl.opacity()
         .if(select, vl.value(1))
